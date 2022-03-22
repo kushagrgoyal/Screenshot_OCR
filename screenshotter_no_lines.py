@@ -16,6 +16,8 @@ class MainWindow(qtw.QWidget):
         self.ix = -1
         self.iy = -1
         self.drawing = False
+        self.img2 = None
+        self.done = False
 
         # Add a title
         self.setWindowTitle('Screenshot OCR')
@@ -37,6 +39,13 @@ class MainWindow(qtw.QWidget):
         bot_label.setFont(qtg.QFont('Helvetica', pointSize = 12))
         self.layout().addWidget(bot_label)
 
+        # Creating area for the image captured by the screenshotter
+        ss = qtg.QPixmap(self.img2)
+        ss_label = qtw.QLabel()
+        ss_label.setPixmap(ss)
+        ss_label.setHidden(self.done)
+        self.layout().addWidget(ss_label)
+
         # Show the app
         self.show()
 
@@ -44,6 +53,7 @@ class MainWindow(qtw.QWidget):
         '''
         This function takes the screenshot and displays it, currently.
         '''
+        self.done = False
         self.hide()
         time.sleep(0.2)
         self.img = pyautogui.screenshot()
@@ -69,7 +79,6 @@ class MainWindow(qtw.QWidget):
                 if self.drawing == True:
                     self.img2 = copy.deepcopy(self.img)
                     cv2.rectangle(self.img2, pt1 = (self.ix, self.iy), pt2 = (x, y), color = (255, 255, 255), thickness = 1)
-                    # self.img = self.img2
 
             elif event == cv2.EVENT_LBUTTONUP:
                 self.drawing = False
@@ -79,6 +88,7 @@ class MainWindow(qtw.QWidget):
 
                 # This will destroy the original window and only show the updated window with the cropped selection
                 cv2.destroyAllWindows()
+                self.done = True
 
 
         # Bind the callback function to window
@@ -87,7 +97,8 @@ class MainWindow(qtw.QWidget):
         while True:
             cv2.imshow('Screenshot', self.img2)
             
-            if cv2.waitKey(1) & 0xFF == ord('q'):
+            if cv2.waitKey(1) & 0xFF == ord('q') or self.done == True:
+                # cv2.imwrite('./temp.png', self.img2)
                 break
         
         cv2.destroyAllWindows()
