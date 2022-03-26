@@ -1,12 +1,16 @@
 import copy
 import cv2
+from cv2 import addWeighted
 import numpy as np
 from PIL import ImageGrab
 import pyautogui
+import pyperclip
 import pytesseract
 import PyQt6.QtWidgets as qtw
 import PyQt6.QtGui as qtg
 import time
+
+from torch import layout
 
 # Command needs to be added to provide the path for the tesseract.exe file
 pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
@@ -34,7 +38,7 @@ class MainWindow(qtw.QWidget):
         my_label.setFont(qtg.QFont('Helvetica', pointSize = 14))
         self.layout().addWidget(my_label)
 
-        # Create a button
+        # Create the screenshot button
         ss = qtw.QPushButton('Screenshot', clicked = lambda: self.click_button())
         self.layout().addWidget(ss)
 
@@ -44,12 +48,16 @@ class MainWindow(qtw.QWidget):
         self.layout().addWidget(bot_label)
 
         # Creating area for the image captured by the screenshotter
-        ss_textbox = qtw.QTextEdit(self)
-        ss_textbox.setPlainText(self.ss_text)
-        self.layout().addWidget(ss_textbox)
+        self.ss_textbox = qtw.QTextEdit(self, placeholderText = 'Extracted text will come here!')
+        self.layout().addWidget(self.ss_textbox)
+
+        # Adding a button for copying the text from the textbox field
+        copy_button = qtw.QPushButton('Copy Text', clicked = lambda: self.copy_text())
+        self.layout().addWidget(copy_button)
 
         # Show the app
         self.show()
+
 
     def click_button(self):
         '''
@@ -92,7 +100,10 @@ class MainWindow(qtw.QWidget):
                 # This will destroy the original window and only show the updated window with the cropped selection
                 cv2.destroyAllWindows()
                 self.done = True
-                self.ss_text = pytesseract.image_to_string(self.img2)
+                pyperclip.copy(pytesseract.image_to_string(self.img2))
+
+                # The following line of code pastes the extracted text in the text field
+                self.ss_textbox.setPlainText(pyperclip.paste())
 
 
         # Bind the callback function to window
@@ -105,6 +116,10 @@ class MainWindow(qtw.QWidget):
                 # cv2.imwrite('./temp.png', self.img2)
                 break
     cv2.destroyAllWindows()
+
+    
+    def copy_text(self):
+        pyperclip.copy(self.ss_textbox.toPlainText())
 
 
 app = qtw.QApplication([])
