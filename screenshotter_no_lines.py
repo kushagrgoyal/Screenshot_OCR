@@ -48,7 +48,7 @@ class MainWindow(qtw.QWidget):
         self.layout().addWidget(bot_label)
 
         # Creating area for the image captured by the screenshotter
-        self.ss_textbox = qtw.QTextEdit(self, placeholderText = 'Extracted text will come here!')
+        self.ss_textbox = qtw.QTextEdit(self, placeholderText = 'Extracted text will come here!', acceptRichText = True)
         self.layout().addWidget(self.ss_textbox)
 
         # Adding a button for copying the text from the textbox field
@@ -89,12 +89,12 @@ class MainWindow(qtw.QWidget):
             elif event == cv2.EVENT_MOUSEMOVE:
                 if self.drawing == True:
                     self.img2 = copy.deepcopy(self.img)
-                    cv2.rectangle(self.img2, pt1 = (self.ix, self.iy), pt2 = (x, y), color = (255, 255, 255), thickness = 1)
+                    cv2.rectangle(self.img2, pt1 = (self.ix, self.iy), pt2 = (x, y), color = (0, 255, 255), thickness = 1)
 
             elif event == cv2.EVENT_LBUTTONUP:
                 self.drawing = False
                 self.img2 = copy.deepcopy(self.img)
-                cv2.rectangle(self.img2, pt1 = (self.ix, self.iy), pt2 = (x, y), color = (255, 255, 255), thickness = 1)
+                cv2.rectangle(self.img2, pt1 = (self.ix, self.iy), pt2 = (x, y), color = (0, 255, 255), thickness = 1)
                 self.img2 = self.img[self.iy:y, self.ix:x]
 
                 # This will destroy the original window and only show the updated window with the cropped selection
